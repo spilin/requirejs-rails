@@ -101,17 +101,15 @@ module Requirejs::Rails
                                                     "modules" => [ { 'name' => 'application' } ]
         self[:build_config].merge!(self.user_config).slice!(*self.build_config_whitelist)
         case self.loader
-        when :requirejs 
+        when :requirejs
           # nothing to do
         when :almond
           mods = self[:build_config]['modules']
-          unless mods.length == 1
-            raise Requirejs::ConfigError, "Almond build requires exactly one module, config has #{mods.length}."
-          end
-          mod = mods[0]
-          name = mod['name']
-          mod['name'] = 'almond'
-          mod['include'] = name
+          mods[0] = {
+              name: 'almond',
+              include: mods.map {|mod| mod['name'] }.first,
+              out: (self.target_dir+(  mods.last['name'] + '.js')).to_s
+          }
         end
       end
       self[:build_config]
